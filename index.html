@@ -4,32 +4,229 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Secret Santa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yellowtail&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:light dark;--bg:#f6f3ee;--card:#ffffff;--text:#222;--muted:#666;--accent:#b3261e;--border:#dcdcdc;}
-@media (prefers-color-scheme:dark){:root{--bg:#1b1b1d;--card:#262629;--text:#eee;--muted:#aaa;--accent:#ff6b5b;--border:#3a3a3e;}}
+:root{
+  color-scheme:light dark;
+  --sky-top:#e9f1f8;
+  --sky-bottom:#cfdfec;
+  --glass:rgba(255,255,255,.72);
+  --ink:#16293b;
+  --muted:#5d7388;
+  --navy:#1d3b57;
+  --ice:#8db6d3;
+  --line:rgba(141,182,211,.45);
+  --field:rgba(255,255,255,.85);
+  --shadow:0 20px 50px -20px rgba(29,59,87,.35);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --sky-top:#14263a;
+    --sky-bottom:#0a1622;
+    --glass:rgba(24,42,62,.72);
+    --ink:#f0f6fb;
+    --muted:#a3b9cc;
+    --navy:#d4e8f6;
+    --ice:#5f8aa8;
+    --line:rgba(95,138,168,.45);
+    --field:rgba(12,24,36,.7);
+    --shadow:0 20px 50px -20px rgba(0,0,0,.7);
+  }
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:560px}
-h1{margin:0 0 8px;font-size:1.6rem}
-.sub{margin:0 0 18px;color:var(--muted);line-height:1.45}
-textarea{width:100%;min-height:200px;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;resize:vertical}
-button{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:600;cursor:pointer;width:100%;margin-top:12px}
-button.small{width:auto;margin:0;padding:8px 12px;font-size:.85rem;white-space:nowrap}
-.error{color:var(--accent);margin-top:12px;font-size:.95rem;min-height:1em}
-.row{padding:14px 0;border-bottom:1px solid var(--border)}
+html{min-height:100%}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:"Avenir Next","Avenir","Helvetica Neue",system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(180deg,var(--sky-top),var(--sky-bottom));
+  background-attachment:fixed;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:48px 16px;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* Gentle falling snow: tiles scroll straight down and repeat seamlessly */
+body::before,body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  background-image:
+    radial-gradient(2px 2px at 10% 20%,#fff 60%,transparent 62%),
+    radial-gradient(3px 3px at 30% 70%,#fff 60%,transparent 62%),
+    radial-gradient(2px 2px at 55% 15%,#fff 60%,transparent 62%),
+    radial-gradient(2px 2px at 75% 55%,#fff 60%,transparent 62%),
+    radial-gradient(3px 3px at 90% 85%,#fff 60%,transparent 62%),
+    radial-gradient(2px 2px at 45% 90%,#fff 60%,transparent 62%);
+}
+body::before{
+  background-size:260px 260px;
+  opacity:.9;
+  animation:fall-a 22s linear infinite;
+}
+body::after{
+  background-size:340px 340px;
+  opacity:.6;
+  animation:fall-b 34s linear infinite;
+}
+@keyframes fall-a{from{background-position:0 0}to{background-position:0 260px}}
+@keyframes fall-b{from{background-position:0 0}to{background-position:0 340px}}
+@media (prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
+
+.card{
+  position:relative;
+  z-index:1;
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+  border:1px solid var(--line);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+  padding:42px 38px 36px;
+  width:100%;
+  max-width:560px;
+}
+h1{
+  margin:0 0 12px;
+  font-family:"Yellowtail",cursive;
+  font-weight:400;
+  font-size:3.2rem;
+  line-height:1.1;
+  letter-spacing:.01em;
+  color:var(--navy);
+  text-align:center;
+}
+h1::before{
+  content:"✻";
+  display:block;
+  font-size:1.3rem;
+  color:var(--ice);
+  margin-bottom:12px;
+  letter-spacing:0;
+}
+.sub{
+  margin:0 0 24px;
+  color:var(--muted);
+  line-height:1.65;
+  font-size:.95rem;
+  text-align:center;
+}
+textarea{
+  width:100%;
+  min-height:190px;
+  padding:16px 18px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:var(--field);
+  color:var(--ink);
+  font:inherit;
+  font-size:1rem;
+  line-height:1.6;
+  resize:vertical;
+  transition:border-color .2s,box-shadow .2s;
+}
+textarea:focus{
+  outline:none;
+  border-color:var(--ice);
+  box-shadow:0 0 0 4px rgba(141,182,211,.3);
+}
+button{
+  display:block;
+  width:100%;
+  margin-top:16px;
+  padding:14px 18px;
+  background:var(--navy);
+  color:var(--sky-top);
+  border:1px solid var(--navy);
+  border-radius:16px;
+  font:inherit;
+  font-size:.95rem;
+  font-weight:500;
+  letter-spacing:.04em;
+  cursor:pointer;
+  transition:opacity .2s,transform .1s;
+}
+button:hover{opacity:.85}
+button:active{transform:scale(.99)}
+button#shareAll{
+  background:transparent;
+  color:var(--navy);
+  border:1px dashed var(--ice);
+}
+button#shareAll:hover{opacity:1;background:rgba(141,182,211,.15)}
+button.small{
+  display:inline-block;
+  width:auto;
+  margin:0;
+  padding:6px 14px;
+  font-size:.78rem;
+  background:transparent;
+  color:var(--navy);
+  border:1px solid var(--ice);
+  border-radius:999px;
+}
+button.small:hover{opacity:1;background:var(--navy);color:var(--sky-top)}
+.error{
+  color:#c0485a;
+  margin-top:14px;
+  font-size:.92rem;
+  text-align:center;
+  min-height:1em;
+}
+.row{
+  padding:14px 0;
+  border-bottom:1px solid var(--line);
+}
 .row:last-child{border-bottom:0}
-.row-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
-.row strong{font-size:1rem}
-.row input{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:.78rem}
-.reveal{text-align:center;padding:12px 0}
-.reveal .big{font-size:2.2rem;font-weight:700;color:var(--accent);margin:18px 0}
+.row-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:8px;
+}
+.row strong{
+  font-weight:500;
+  font-size:1.05rem;
+  color:var(--ink);
+}
+.row input{
+  width:100%;
+  padding:8px 12px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--field);
+  color:var(--muted);
+  font:inherit;
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.72rem;
+}
+.reveal{text-align:center;padding:8px 0}
+.reveal h1{font-size:3.4rem}
+.reveal .big{
+  font-size:2.5rem;
+  font-weight:200;
+  color:var(--navy);
+  margin:22px 0 26px;
+  letter-spacing:.03em;
+}
+#outro{margin-bottom:0}
+#allList{text-align:left;margin-top:18px}
+#allList .row{font-size:1.05rem;padding:12px 4px}
 .hidden{display:none !important}
 </style>
 </head>
 <body>
 
 <div class="card" id="organizer">
-  <h1>🎁 Secret Santa</h1>
+  <h1>Secret Santa</h1>
   <p class="sub">Enter one name per line. Everyone gives to exactly one person and receives from exactly one person, and nobody gets themselves.</p>
   <textarea id="names" placeholder="Alex&#10;Sam&#10;Jordan"></textarea>
   <button id="draw">Draw names</button>
@@ -38,19 +235,23 @@ button.small{width:auto;margin:0;padding:8px 12px;font-size:.85rem;white-space:n
   <div id="results" class="hidden">
     <p class="sub" style="margin-top:20px">Send each person their own link privately. Each link only shows that person's name and their Secret Santa.</p>
     <div id="links"></div>
+    <button id="shareAll">Copy validation link (shows all pairings)</button>
+    <p class="sub" style="margin-top:10px;font-size:.85rem">For checking only. Anyone with this link sees every pairing, so don't send it to the group.</p>
   </div>
 </div>
 
 <div class="card hidden" id="reveal">
   <div class="reveal">
     <h1 id="greeting"></h1>
-    <p class="sub">Your Secret Santa is:</p>
+    <p class="sub" id="intro">Your Secret Santa is:</p>
     <div class="big" id="santa"></div>
-    <p class="sub">Keep it a secret 🤫</p>
+    <p class="sub" id="outro">Keep it a secret 🤫</p>
+    <div id="allList"></div>
   </div>
 </div>
 
 <script>
+let currentPairs = [];
 const enc = new TextEncoder();
 const dec = new TextDecoder();
 
@@ -68,28 +269,24 @@ function fromToken(token) {
   const bin = atob(s);
   const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
   const obj = JSON.parse(dec.decode(bytes));
-  if (typeof obj.n !== "string" || typeof obj.s !== "string") throw new Error("bad token");
   return obj;
 }
 
-function shuffle(arr) {
+// Sattolo's algorithm: a random permutation in which nobody lands on their own
+// position (so nobody gets themselves), and every name is used exactly once as
+// a receiver. Pairings are random, and the output keeps the input order.
+function randomDerangement(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
-    const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1);
+    const j = crypto.getRandomValues(new Uint32Array(1))[0] % i; // 0 .. i-1
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
 
-// Shuffle, then each person gives to the next in the circle.
-// This guarantees: no one gets themselves, everyone gives once, everyone receives once.
 function assign(names) {
-  const order = shuffle(names);
-  const pairs = [];
-  for (let i = 0; i < order.length; i++) {
-    pairs.push({ giver: order[i], receiver: order[(i + 1) % order.length] });
-  }
-  return pairs;
+  const receivers = randomDerangement(names);
+  return names.map((giver, i) => ({ giver, receiver: receivers[i] }));
 }
 
 function parseNames(text) {
@@ -133,7 +330,8 @@ document.getElementById("draw").addEventListener("click", () => {
   errorEl.textContent = "";
 
   const base = location.href.split("#")[0];
-  const pairs = assign(names);
+  currentPairs = assign(names);
+  const pairs = currentPairs;
   const linksEl = document.getElementById("links");
   linksEl.textContent = "";
 
@@ -168,16 +366,41 @@ document.getElementById("draw").addEventListener("click", () => {
   document.getElementById("results").classList.remove("hidden");
 });
 
+document.getElementById("shareAll").addEventListener("click", () => {
+  const base = location.href.split("#")[0];
+  const url = `${base}#${toToken({ all: currentPairs.map(p => ({ n: p.giver, s: p.receiver })) })}`;
+  copyText(url, document.getElementById("shareAll"));
+});
+
 // If opened with a personal link, show only that person's assignment.
+// If it's a validation link, show every pairing instead.
 (function init() {
   const hash = location.hash.slice(1);
   if (!hash) return;
   try {
-    const { n, s } = fromToken(hash);
-    document.getElementById("greeting").textContent = `Hi ${n}!`;
-    document.getElementById("santa").textContent = s;
+    const obj = fromToken(hash);
     document.getElementById("organizer").classList.add("hidden");
     document.getElementById("reveal").classList.remove("hidden");
+
+    if (Array.isArray(obj.all)) {
+      // Validation view: every pairing, in the same order as entered.
+      document.getElementById("greeting").textContent = "Validation: all pairings";
+      document.getElementById("intro").classList.add("hidden");
+      document.getElementById("santa").classList.add("hidden");
+      document.getElementById("outro").classList.add("hidden");
+      const list = document.getElementById("allList");
+      list.textContent = "";
+      obj.all.forEach(({ n, s }) => {
+        const row = document.createElement("div");
+        row.className = "row";
+        row.textContent = `${n}  →  ${s}`;
+        list.appendChild(row);
+      });
+    } else {
+      // Personal view: only this person's name and their Secret Santa.
+      document.getElementById("greeting").textContent = `Hi ${obj.n}!`;
+      document.getElementById("santa").textContent = obj.s;
+    }
   } catch (e) {
     document.getElementById("error").textContent = "This link isn't valid.";
   }
